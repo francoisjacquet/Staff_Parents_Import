@@ -1,0 +1,11 @@
+Name,Surname,Gender,Phone,Birthdate,PIN,Email,Profile
+John,Smith,Male,612345678,12/06/93,letterpin,john@smith.com,Administrator
+Meryl,Streep,Female,123456,06/22/49,123456789,merryl@streep.com,Teacher
+Roger,Rabbit,Unknown,123456789,,123456789*,roger@rabbit.com,Parent
+Missing Surname,,,,,,not@imported.com,No Access
+,Missing Name,,,,,not@imported.com,
+No,Account #,Male,,2003-08-23,987654321,no@accountnumber.com,none
+No,Phone,Male,,28-05-1984,321654987,,admin
+No,PIN,Female,01.23.45.67.89,05/13/05,,no@pin.com,teacher
+No,email,Male,123-456-789,13-05-1989,321654987,,parent
+No,profile,Male,,13-05-1972,321654987,no@access.com,

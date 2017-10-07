@@ -24,6 +24,15 @@ You can generate CSV file with all users inside it, using a standard spreadsheet
 
 You have to create the file filled with information (or take it from another database) and you will have to choose CSV file when you "Save as..." the file. As an example, a CSV file is included in the `tests/` folder.
 
+## Profiles
+
+_In case you choose a column of your CSV / Excel file_, here are the predefined profile values that will be accepted and detected:
+
+- `admin` or "Administrator"
+- `teacher` or "Teacher"
+- `parent` or "Parent"
+- `none` or "No Access" or "" (empty)
+
 ## All data
 
 [Trimmed](http://php.net/trim) (spaces are stripped), examples:

@@ -263,21 +263,34 @@ elseif ( $_REQUEST['modfunc'] === 'upload' )
 			_makeSelectInput( 'LAST_NAME', $csv_columns, _( 'Last Name' ), 'required' ) .
 		'</td></tr>';
 
-		$tooltip = _makeFieldTypeTooltip(
-			'numeric',
-			'; ' . dgettext( 'Staff_Parents_Import', 'IDs are automatically generated if you select "N/A".' )
-		);
-
-		echo '<tr><td>' .
-			_makeSelectInput( 'STAFF_ID', $csv_columns, sprintf( _( '%s ID' ), Config( 'NAME' ) ) . $tooltip ) .
-		'</td></tr>';
-
 		echo '<tr><td>' .
 			_makeSelectInput( 'USERNAME', $csv_columns, _( 'Username' ) ) .
 		'</td></tr>';
 
 		echo '<tr><td>' .
 			_makeSelectInput( 'PASSWORD', $csv_columns, _( 'Password' ) ) .
+		'</td></tr>';
+
+		$profile_options = array(
+			'KEY_admin' => _( 'Administrator' ),
+			'KEY_teacher' => _( 'Teacher' ),
+			'KEY_parent' => _( 'Parent' ),
+			'KEY_none' => _( 'No Access' )
+		);
+
+		// Add CSV columns to set Profile.
+		$profile_options += $csv_columns;
+
+		echo '<tr><td>' .
+			_makeSelectInput( 'PROFILE', $profile_options, _( 'User Profile' ), 'required', true ) .
+		'</td></tr>';
+
+		echo '<tr><td>' .
+			_makeSelectInput( 'EMAIL', $csv_columns, _( 'Email Address' ) ) .
+		'</td></tr>';
+
+		echo '<tr><td>' .
+			_makeSelectInput( 'PHONE', $csv_columns, _( 'Phone Number' ) ) .
 		'</td></tr>';
 
 		/**
@@ -305,7 +318,7 @@ elseif ( $_REQUEST['modfunc'] === 'upload' )
 
 			echo '<tr><td>' .
 				_makeSelectInput(
-					'STAFF_' . $field['ID'],
+					'CUSTOM_' . $field['ID'],
 					$csv_columns,
 					ParseMLField( $field['TITLE'] ) . $tooltip,
 					$field['REQUIRED'] ? 'required' : ''

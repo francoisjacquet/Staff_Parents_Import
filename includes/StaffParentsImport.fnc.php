@@ -259,17 +259,20 @@ function CSVImport( $csv_file_path )
 			continue;
 		}
 
-		// Get Defined STAFF_ID, check it, or get next ID.
+		// Get next Staff ID.
 		$user['STAFF_ID'] = _getUserID( $user );
 
-		/*$enrollment['GRADE_ID'] = _getGradeLevelID(
-			isset( $user['GRADE_ID'] ) ? $user['GRADE_ID'] : $_REQUEST['values']['GRADE_ID']
+		// Get current School Year.
+		$user['SYEAR'] = UserSyear();
+
+		$user['PROFILE'] = _getUserProfile(
+			isset( $user['PROFILE'] ) ? $user['PROFILE'] : $_REQUEST['values']['PROFILE']
 		);
 
-		unset( $user['GRADE_ID'] );
+		$user['PROFILE_ID'] = _getUserProfileID( $user['PROFILE'] );
 
 		// INSERT Enrollment.
-		$user_sql[] = _insertUserEnrollment( $user['STAFF_ID'], $enrollment );*/
+		// $user_sql[] = _insertUserEnrollment( $user['STAFF_ID'], $enrollment );
 
 		// INSERT User.
 		$user_sql[] = _insertUser( $user );
@@ -350,7 +353,7 @@ function _checkUser( $user_fields )
 
 
 /**
- * Get Defined STAFF_ID, or get next ID.
+ * Get next Staff ID.
  *
  * Local function
  *
@@ -362,29 +365,101 @@ function _checkUser( $user_fields )
  */
 function _getUserID( $user_fields )
 {
-	$user_id = 0;
+	$user_id = DBGet( DBQuery( 'SELECT ' . db_seq_nextval( 'STAFF_SEQ' ) . ' AS STAFF_ID' ) );
 
-	// Defined User ID.
-	if ( isset( $user_fields['STAFF_ID'] ) )
+	$user_id = $user_id[1]['STAFF_ID'];
+
+	return $user_id;
+}
+
+
+/**
+ * Get User Profile
+ *
+ * Local function
+ *
+ * Accepts the translated Profile title (from CSV file column).
+ *
+ * @see CSVImport()
+ *
+ * @param  string $profile_title User Profile title: admin, teacher, parent or none.
+ *
+ * @return string User Profile.
+ */
+function _getUserProfile( $profile_title )
+{
+	// Requested User Profile key?
+	if ( mb_strpos( $profile_title, 'KEY_' ) !== false )
 	{
-		$user_id = (int) $user_fields['STAFF_ID'];
+		$profile_id = str_replace( 'KEY_', '', $profile_title );
+	}
+	// Try to deduce Grade Level ID from its Title.
+	elseif ( $profile_title )
+	{
+		$profile_options = array(
+			'admin' => _( 'Administrator' ),
+			'teacher' => _( 'Teacher' ),
+			'parent' => _( 'Parent' ),
+			'none' => _( 'No Access' )
+		);
 
-		if ( $user_id < 0 )
+		if ( in_array( mb_strtolower( $profile_title ), array_keys( $profile_options ) ) )
 		{
-			$user_id = 0;
+			$profile_id = mb_strtolower( $profile_title );
+		}
+		elseif ( in_array( $profile_title, $profile_options ) )
+		{
+			foreach ( (array) $profile_options as $profile_option_id => $profile_option )
+			{
+				if ( $profile_option === $profile_title )
+				{
+					$profile_id = $profile_option_id;
+				}
+			}
 		}
 	}
 
-	while ( ! $user_id
-		|| DBGet( DBQuery( "SELECT STAFF_ID
-			FROM STAFF
-			WHERE STAFF_ID='" . $user_id . "'" ) ) )
+	if ( ! isset( $profile_id ) )
 	{
-		$user_id = DBGet( DBQuery( 'SELECT ' . db_seq_nextval( 'STAFF_SEQ' ) . ' AS STAFF_ID' ) );
-		$user_id = $user_id[1]['STAFF_ID'];
+		// Do NOT fail, default to No Access profile.
+		$profile_id = 'none';
 	}
 
-	return $user_id;
+	return $profile_id;
+}
+
+
+
+/**
+ * Get User Profile ID
+ *
+ * Local function
+ *
+ * @see _getUserProfile()
+ *
+ * @param  string $profile_title User Profile title: admin, teacher, parent or none.
+ *
+ * @return string User Profile ID.
+ */
+function _getUserProfileID( $profile_title )
+{
+	// Defaults to No Access.
+	$profile_id = '';
+
+	if ( $profile_title === 'admin' )
+	{
+		$profile_id = '1';
+	}
+	elseif ( $profile_title === 'teacher' )
+	{
+		$profile_id = '2';
+	}
+	elseif ( $profile_title === 'parent' )
+	{
+		$profile_id = '3';
+	}
+
+	return $profile_id;
 }
 
 
@@ -424,7 +499,7 @@ function _insertUser( $user_fields )
 		if ( ! empty( $value )
 			|| $value == '0' )
 		{
-			$field_type = $custom_fields_RET[ str_replace( 'STAFF_', '', $field ) ][1]['TYPE'];
+			$field_type = $custom_fields_RET[ str_replace( 'CUSTOM_', '', $field ) ][1]['TYPE'];
 
 			// Check field type.
 			if ( ( $value = _checkFieldType( $value, $field_type ) ) === false )

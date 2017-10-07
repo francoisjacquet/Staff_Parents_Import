@@ -332,6 +332,6 @@ elseif ( $_REQUEST['modfunc'] === 'upload' )
 			dgettext( 'Staff_Parents_Import', 'Import Users' ),
 			'',
 			' class="import-users-button"'
-		) . '</div></form><br /><br /><br /><br />';
+		) . '</div></form><br /><br /><br /><br /><br /><br /><br /><br />';
 	}
 }

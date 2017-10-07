@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Staff and Parents Module for RosarioSIS.\n"
+"Project-Id-Version: Staff and Parents Import Module for RosarioSIS.\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-10-07 20:19+0100\n"
 "PO-Revision-Date: 2017-10-07 20:20+0100\n"

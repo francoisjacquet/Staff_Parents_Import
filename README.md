@@ -1,5 +1,5 @@
-Staff and Parents Module
-========================
+Staff and Parents Import Module
+===============================
 
 ![screenshot](https://raw.githubusercontent.com/francoisjacquet/Staff_Parents_Import/master/screenshot.png)
 

@@ -14,8 +14,8 @@ License MIT
 DESCRIPTION
 -----------
 Import Users from a CSV or Excel file.
-Easily bulk upload your Users database to RosarioSIS.
-Import Users info (general & custom fields), enroll them & eventually create accounts.
+Easily bulk upload your staff, teachers and/or parents database to RosarioSIS.
+Import Users info (general & custom fields) & eventually create accounts.
 This module adds an entry to the Users menu.
 
 Includes Help.

@@ -269,7 +269,7 @@ elseif ( $_REQUEST['modfunc'] === 'upload' )
 		);
 
 		echo '<tr><td>' .
-			_makeSelectInput( 'STUDENT_ID', $csv_columns, sprintf( _( '%s ID' ), Config( 'NAME' ) ) . $tooltip ) .
+			_makeSelectInput( 'STAFF_ID', $csv_columns, sprintf( _( '%s ID' ), Config( 'NAME' ) ) . $tooltip ) .
 		'</td></tr>';
 
 		echo '<tr><td>' .
@@ -285,7 +285,7 @@ elseif ( $_REQUEST['modfunc'] === 'upload' )
 		 */
 		$fields_RET = DBGet( DBQuery( "SELECT cf.ID,cf.TITLE,cf.TYPE,cf.SELECT_OPTIONS,
 			cf.REQUIRED,cf.CATEGORY_ID,sfc.TITLE AS CATEGORY_TITLE
-			FROM CUSTOM_FIELDS cf, STUDENT_FIELD_CATEGORIES sfc
+			FROM STAFF_FIELDS cf, STAFF_FIELD_CATEGORIES sfc
 			WHERE cf.CATEGORY_ID=sfc.ID
 			ORDER BY sfc.SORT_ORDER, cf.SORT_ORDER") );
 
@@ -305,125 +305,13 @@ elseif ( $_REQUEST['modfunc'] === 'upload' )
 
 			echo '<tr><td>' .
 				_makeSelectInput(
-					'CUSTOM_' . $field['ID'],
+					'STAFF_' . $field['ID'],
 					$csv_columns,
 					ParseMLField( $field['TITLE'] ) . $tooltip,
 					$field['REQUIRED'] ? 'required' : ''
 				) .
 			'</td></tr>';
 		}
-
-
-		/**
-		 * Enrollment.
-		 */
-		echo '<tr><td><h4>' . _( 'Enrollment' ) . '</h4></td></tr>';
-
-		$gradelevels_RET = DBGet( DBQuery( "SELECT ID,TITLE
-			FROM SCHOOL_GRADELEVELS
-			WHERE SCHOOL_ID='" . UserSchool() . "'
-			ORDER BY SORT_ORDER" ) );
-
-		$options = array();
-
-		foreach ( (array) $gradelevels_RET as $gradelevel )
-		{
-			// Add 'ID_' prefix not to mix with CSV columns.
-			$options[ 'ID_' . $gradelevel['ID'] ] = $gradelevel['TITLE'];
-		}
-
-		// Add CSV columns to set Grade Level.
-		$options += $csv_columns;
-
-		echo '<tr><td>' .
-			_makeSelectInput( 'GRADE_ID', $options, _( 'Grade Level' ), 'required', true ) .
-		'</td></tr>';
-
-		$calendars_RET = DBGet( DBQuery( "SELECT CALENDAR_ID,DEFAULT_CALENDAR,TITLE
-			FROM ATTENDANCE_CALENDARS
-			WHERE SYEAR='" . UserSyear() . "'
-			AND SCHOOL_ID='" . UserSchool() . "'
-			ORDER BY DEFAULT_CALENDAR ASC" ) );
-
-		$options = array();
-
-		foreach ( (array) $calendars_RET as $calendar )
-		{
-			$options[ $calendar['CALENDAR_ID'] ] = $calendar['TITLE'];
-
-			if ( $calendar['DEFAULT_CALENDAR'] )
-			{
-				$options[ $calendar['CALENDAR_ID'] ] .= ' (' . _( 'Default' ) . ')';
-			}
-		}
-
-		$no_chosen = false;
-
-		echo '<tr><td>' .
-			_makeSelectInput(
-				'CALENDAR_ID',
-				$options,
-				_( 'Calendar' ),
-				'required',
-				$no_chosen,
-				'enrollment'
-			) .
-		'</td></tr>';
-
-		$schools_RET = DBGet( DBQuery( "SELECT ID,TITLE
-			FROM SCHOOLS
-			WHERE ID!='" . UserSchool() . "'
-			AND SYEAR='" . UserSyear() . "'" ) );
-
-		$options = array(
-			UserSchool() => _( 'Next grade at current school' ),
-			'0' => _( 'Retain' ),
-			'-1' => _( 'Do not enroll after this school year' ),
-		);
-
-		foreach ( (array) $schools_RET as $school )
-		{
-			$options[ $school['ID'] ] = $school['TITLE'];
-		}
-
-		echo '<tr><td>' .
-			_makeSelectInput(
-				'NEXT_SCHOOL',
-				$options,
-				_( 'Rolling / Retention Options' ),
-				'required',
-				$no_chosen,
-				'enrollment'
-		) .
-		'</td></tr>';
-
-		$enrollment_codes_RET = DBGet( DBQuery( "SELECT ID,TITLE AS TITLE
-			FROM STUDENT_ENROLLMENT_CODES
-			WHERE SYEAR='" . UserSyear() . "'
-			AND TYPE='Add'
-			ORDER BY SORT_ORDER" ) );
-
-		$options = array();
-
-		foreach ( (array) $enrollment_codes_RET as $enrollment_code )
-		{
-			$options[ $enrollment_code['ID'] ] = $enrollment_code['TITLE'];
-		}
-
-		echo '<tr><td>' .
-			_makeDateInput( 'START_DATE', '', true, 'enrollment' ) . ' -<br />' .
-			_makeSelectInput(
-				'ENROLLMENT_CODE',
-				$options,
-				_( 'Attendance Start Date this School Year' )
-					. '<div class="tooltip"><i>' .
-					dgettext( 'Staff_Parents_Import', 'If the date is left empty, users will not be enrolled (inactive).' ) .
-					'</i></div>',
-				'',
-				$no_chosen,
-				'enrollment'
-			) .
-		'</td></tr>';
 
 		echo '</table>';
 

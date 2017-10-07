@@ -222,17 +222,17 @@ function CSVImport( $csv_file_path )
 		$row++;
 	}
 
-	$enrollment = $_REQUEST['enrollment'];
+	/*$enrollment = $_REQUEST['enrollment'];
 
 	$enrollment['START_DATE'] = RequestedDate(
 		$_REQUEST['year_enrollment']['START_DATE'],
 		$_REQUEST['month_enrollment']['START_DATE'],
 		$_REQUEST['day_enrollment']['START_DATE']
-	);
+	);*/
 
 	// Sanitize input: Remove HTML tags.
 	array_rwalk( $users, 'strip_tags' );
-	array_rwalk( $enrollment, 'strip_tags' );
+	// array_rwalk( $enrollment, 'strip_tags' );
 
 	//var_dump( $users, $enrollment ); //exit;
 
@@ -259,17 +259,17 @@ function CSVImport( $csv_file_path )
 			continue;
 		}
 
-		// Get Defined STUDENT_ID, check it, or get next ID.
-		$user['STUDENT_ID'] = _getUserID( $user );
+		// Get Defined STAFF_ID, check it, or get next ID.
+		$user['STAFF_ID'] = _getUserID( $user );
 
-		$enrollment['GRADE_ID'] = _getGradeLevelID(
+		/*$enrollment['GRADE_ID'] = _getGradeLevelID(
 			isset( $user['GRADE_ID'] ) ? $user['GRADE_ID'] : $_REQUEST['values']['GRADE_ID']
 		);
 
 		unset( $user['GRADE_ID'] );
 
 		// INSERT Enrollment.
-		$user_sql[] = _insertUserEnrollment( $user['STUDENT_ID'], $enrollment );
+		$user_sql[] = _insertUserEnrollment( $user['STAFF_ID'], $enrollment );*/
 
 		// INSERT User.
 		$user_sql[] = _insertUser( $user );
@@ -284,105 +284,6 @@ function CSVImport( $csv_file_path )
 	return $staff_parents_imported;
 }
 
-
-/**
- * Get Grade Level ID
- *
- * Local function
- *
- * @see CSVImport()
- *
- * @param  string $grade_title Grade Level Title.
- *
- * @return string Grade Level ID
- */
-function _getGradeLevelID( $grade_title )
-{
-	// Requested Grade Level ID?
-	if ( mb_strpos( $grade_title, 'ID_' ) !== false )
-	{
-		$grade_id = str_replace( 'ID_', '', $grade_title );
-	}
-	// Try to deduce Grade Level ID from its Title.
-	elseif ( $grade_title )
-	{
-		$grade_id = DBGet( DBQuery( "SELECT ID
-			FROM SCHOOL_GRADELEVELS
-			WHERE SCHOOL_ID='" . UserSchool() . "'
-			AND UPPER(TITLE)=UPPER('" . $grade_title . "')" ) );
-
-		$grade_id = $grade_id[1]['ID'];
-	}
-
-	if ( ! isset( $grade_id ) )
-	{
-		// Do NOT fail, default to 1st grade level.
-		$grade_id = DBGet( DBQuery( "SELECT ID
-			FROM SCHOOL_GRADELEVELS
-			WHERE SCHOOL_ID='" . UserSchool() . "'
-			ORDER BY SORT_ORDER
-			LIMIT 1" ) );
-
-		$grade_id = $grade_id[1]['ID'];
-	}
-
-	return $grade_id;
-}
-
-
-/**
- * Get Default Enrollment Code
- *
- * Local function
- *
- * @see _insertUserEnrollment()
- *
- * @return string Default Enrollment Code
- */
-function _getDefaultEnrollmentCode()
-{
-	static $enrollment_code = null;
-
-	if ( ! $enrollment_code )
-	{
-		$enrollment_code = DBGet( DBQuery( "SELECT ID
-			FROM STUDENT_ENROLLMENT_CODES
-			WHERE SYEAR='" . UserSyear() . "'
-			AND DEFAULT_CODE='Y'" ) );
-
-		$enrollment_code = $enrollment_code[1]['ID'];
-	}
-
-	return $enrollment_code;
-}
-
-
-/**
- * Get Default Calendar ID
- *
- * Local function
- *
- * @see _insertUserEnrollment()
- *
- * @return string Default Calendar ID
- */
-function _getDefaultCalendarID()
-{
-	static $calendar_id = null;
-
-	if ( ! $calendar_id )
-	{
-		$calendar_id = DBGet( DBQuery( "SELECT CALENDAR_ID
-			FROM ATTENDANCE_CALENDARS
-			WHERE SYEAR='" . UserSyear() . "'
-			AND SCHOOL_ID='" . UserSchool() . "'
-			AND DEFAULT_CALENDAR='Y'" ) );
-
-		$calendar_id = $calendar_id[1]['CALENDAR_ID'];
-	}
-
-	return $calendar_id;
-}
 
 
 /**
@@ -422,7 +323,7 @@ function _checkUser( $user_fields )
 			WHERE USERNAME='" . $user_fields['USERNAME'] . "'
 			AND SYEAR='" . UserSyear() ."'
 			UNION SELECT 'exists'
-			FROM STUDENTS
+			FROM STAFF
 			WHERE USERNAME='" . $user_fields['USERNAME'] . "'" ) );
 
 		if ( $existing_username )
@@ -434,14 +335,14 @@ function _checkUser( $user_fields )
 		}
 	}
 
-	/*$user = DBGet( DBQuery( "SELECT STUDENT_ID
-		FROM STUDENTS
+	/*$user = DBGet( DBQuery( "SELECT STAFF_ID
+		FROM STAFF
 		WHERE FIRST_NAME='" . $user_fields['FIRST_NAME'] . "'
 		AND LAST_NAME='" . $user_fields['LAST_NAME'] . "'" ) );
 
 	if ( $user )
 	{
-		$user_id = $user[1]['STUDENT_ID'];
+		$user_id = $user[1]['STAFF_ID'];
 	}*/
 
 	return true;
@@ -449,7 +350,7 @@ function _checkUser( $user_fields )
 
 
 /**
- * Get Defined STUDENT_ID, or get next ID.
+ * Get Defined STAFF_ID, or get next ID.
  *
  * Local function
  *
@@ -464,9 +365,9 @@ function _getUserID( $user_fields )
 	$user_id = 0;
 
 	// Defined User ID.
-	if ( isset( $user_fields['STUDENT_ID'] ) )
+	if ( isset( $user_fields['STAFF_ID'] ) )
 	{
-		$user_id = (int) $user_fields['STUDENT_ID'];
+		$user_id = (int) $user_fields['STAFF_ID'];
 
 		if ( $user_id < 0 )
 		{
@@ -475,12 +376,12 @@ function _getUserID( $user_fields )
 	}
 
 	while ( ! $user_id
-		|| DBGet( DBQuery( "SELECT STUDENT_ID
-			FROM STUDENTS
-			WHERE STUDENT_ID='" . $user_id . "'" ) ) )
+		|| DBGet( DBQuery( "SELECT STAFF_ID
+			FROM STAFF
+			WHERE STAFF_ID='" . $user_id . "'" ) ) )
 	{
-		$user_id = DBGet( DBQuery( 'SELECT ' . db_seq_nextval( 'STUDENTS_SEQ' ) . ' AS STUDENT_ID' ) );
-		$user_id = $user_id[1]['STUDENT_ID'];
+		$user_id = DBGet( DBQuery( 'SELECT ' . db_seq_nextval( 'STAFF_SEQ' ) . ' AS STAFF_ID' ) );
+		$user_id = $user_id[1]['STAFF_ID'];
 	}
 
 	return $user_id;
@@ -505,12 +406,12 @@ function _insertUser( $user_fields )
 	if ( ! $custom_fields_RET )
 	{
 		$custom_fields_RET = DBGet( DBQuery( "SELECT ID,TYPE
-			FROM CUSTOM_FIELDS
+			FROM STAFF_FIELDS
 			ORDER BY SORT_ORDER"), array(), array( 'ID' ) );
 	}
 
 	// INSERT users.
-	$sql = "INSERT INTO STUDENTS ";
+	$sql = "INSERT INTO STAFF ";
 
 	if ( isset( $user_fields['PASSWORD'] )
 		&& $user_fields['PASSWORD'] != '' )
@@ -523,7 +424,7 @@ function _insertUser( $user_fields )
 		if ( ! empty( $value )
 			|| $value == '0' )
 		{
-			$field_type = $custom_fields_RET[ str_replace( 'CUSTOM_', '', $field ) ][1]['TYPE'];
+			$field_type = $custom_fields_RET[ str_replace( 'STAFF_', '', $field ) ][1]['TYPE'];
 
 			// Check field type.
 			if ( ( $value = _checkFieldType( $value, $field_type ) ) === false )
@@ -771,55 +672,6 @@ function _formatLongInteger( $long_int )
 	}
 
 	return $long_int;
-}
-
-
-
-/**
- * Insert User Enrollment in Database
- *
- * Local function
- *
- * @see CSVImport()
- *
- * @uses _getDefaultEnrollmentCode()
- * @uses _getDefaultCalendarID()
- *
- * @param array  $user_id User ID.
- * @param array  $enrollment Enrollment array: 'START_DATE','GRADE_ID','ENROLLMENT_CODE','NEXT_SCHOOL','CALENDAR_ID'.
- *
- * @return string SQL INSERT
- */
-function _insertUserEnrollment( $user_id, $enrollment )
-{
-	if ( ! $enrollment['ENROLLMENT_CODE'] )
-	{
-		$enrollment['ENROLLMENT_CODE'] = _getDefaultEnrollmentCode();
-	}
-
-	if ( ! $enrollment['CALENDAR_ID'] )
-	{
-		$enrollment['CALENDAR_ID'] = _getDefaultCalendarID();
-	}
-
-	$sql = "INSERT INTO STUDENT_ENROLLMENT ";
-
-	$fields = 'ID,SYEAR,SCHOOL_ID,STUDENT_ID,';
-
-	$values = "nextval('STUDENT_ENROLLMENT_SEQ'),'" . UserSyear() . "','" .
-		UserSchool() . "','" . $user_id . "',";
-
-	$fields .= 'START_DATE,GRADE_ID,ENROLLMENT_CODE,NEXT_SCHOOL,CALENDAR_ID';
-
-	$values .= "'" . $enrollment['START_DATE'] . "','" .
-		$enrollment['GRADE_ID'] . "','" .
-		$enrollment['ENROLLMENT_CODE'] . "','" .
-		$enrollment['NEXT_SCHOOL'] . "','" .
-		$enrollment['CALENDAR_ID'] . "'";
-
-	$sql .= '(' . $fields . ') values(' . $values . ');';
-
-	return $sql;
 }
 
 

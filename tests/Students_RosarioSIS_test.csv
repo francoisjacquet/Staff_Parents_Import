@@ -1,0 +1,9 @@
+Name,Surname,Gender,Birthdate,Account #,PIN,Email
+John,Smith,Male,12/06/93,1234,letterpin,john@smith.com
+Meryl,Streep,Female,06/22/49,12345,123456789,merryl@streep.com
+Roger,Rabbit,Unknown,,123456,123456789*,roger@rabbit.com
+Missing Surname,,,,,,not@imported.com
+,Missing Name,,,,,not@imported.com
+No,Account #,Male,2003-08-23,,987654321,no@accountnumber.com
+No,PIN,Female,05/13/12,1234567,,no@pin.com
+No,email,Male,13-05-2012,12345678,321654987,

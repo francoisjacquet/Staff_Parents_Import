@@ -186,7 +186,9 @@ elseif ( $_REQUEST['modfunc'] === 'upload' )
 		?>
 		<script>
 		$(function(){
-			$('.import-users-form').submit(function(){
+			$('.import-users-form').submit(function(e){
+
+				e.preventDefault();
 
 				var alertTxt = <?php echo json_encode( dgettext(
 						'Staff_Parents_Import',

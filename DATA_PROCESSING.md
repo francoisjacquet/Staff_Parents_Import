@@ -26,7 +26,7 @@ You have to create the file filled with information (or take it from another dat
 
 ## Profiles
 
-_In case you choose a column of your CSV / Excel file_, here are the predefined profile values that will be accepted and detected:
+_In case you choose to import profiles from a column of your CSV / Excel file_, here are the predefined profile values that will be accepted and detected:
 
 - `admin` or "Administrator"
 - `teacher` or "Teacher"

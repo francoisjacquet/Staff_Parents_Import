@@ -1,3 +1,8 @@
+GitLab
+------
+
+RosarioSIS code is now hosted at [**GitLab**](https://gitlab.com/francoisjacquet/Staff_Parents_Import)!
+
 Staff and Parents Import Module
 ===============================
 
